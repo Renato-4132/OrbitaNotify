@@ -1,0 +1,13 @@
+# Mai committare segreti
+token
+*.token
+*.pem
+local.properties
+.env
+# Build e IDE
+build/
+.gradle/
+.idea/
+*.iml
+*~
+*.zip
