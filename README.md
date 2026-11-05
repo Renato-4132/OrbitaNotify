@@ -9,8 +9,9 @@ Cinque schede in basso, così non serve scorrere.
 ## Indice
 
 - [Schede dell'app](#schede-dellapp)
+- [Collegare l'app a Orbita](#collegare-lapp-a-orbita)
 - [Regole](#regole)
-- [Orbita](#orbita)
+- [Conto, metodo, tag e registrazione automatica](#conto-metodo-tag-e-registrazione-automatica)
 - [Notifiche duplicate e messaggi persi](#notifiche-duplicate-e-messaggi-persi)
 - [Mail, Telegram, ntfy](#mail-telegram-ntfy)
 - [Problemi comuni](#problemi-comuni)
@@ -18,14 +19,31 @@ Cinque schede in basso, così non serve scorrere.
 
 ## Schede dell'app
 
-- **Stato**: interruttore generale, accesso alle notifiche, risparmio batteria, invio di prova.
-- **Canali**: Mail (SMTP), Telegram, ntfy, Orbita (JSON).
+Le schede in basso sono cinque:
+
+- **Stato**: interruttore generale, accesso alle notifiche, risparmio batteria, **Invia notifica di prova**.
+- **Canali**: in alto ci sono quattro sotto-schede, **Mail**, **Telegram**, **ntfy** e **Orbita**.
+  Ognuna ha il proprio interruttore. I dati di Orbita si inseriscono nella sotto-scheda **Orbita**.
 - **Regole**: quali notifiche inoltrare (vedi sotto).
 - **Messaggio**: modello di oggetto e corpo, formato HTML, ignora notifiche fisse.
 - **Cronologia**: ultimi invii con esito ed eventuali errori.
 
 I campi di Canali e Messaggio si salvano da soli quando cambi scheda o esci dall'app.
 Le regole si salvano con **Salva** in fondo alla schermata della regola.
+
+## Collegare l'app a Orbita
+
+1. Apri la scheda **Canali** e tocca la sotto-scheda **Orbita** (la quarta, in alto).
+2. Attiva **Invia a Orbita**.
+3. In **Indirizzo** scrivi l'indirizzo di Orbita, ad esempio `https://tuo-ddns.it:8080/api/notifiche`.
+4. In **Token segreto** scrivi il token, se in Orbita ne hai impostato uno. Altrimenti lascia vuoto.
+5. Vai su **Stato**, tocca **Invia notifica di prova** e controlla in **Cronologia** che l'esito sia positivo.
+
+Meglio usare `https`.
+
+**Mail solo se Orbita non risponde** (nella stessa sotto-scheda, attivo di default): la mail parte
+soltanto quando Orbita non è raggiungibile o risponde con un errore. In quel caso l'errore di Orbita
+compare in Cronologia come già compensato dalla mail.
 
 ## Regole
 
@@ -43,66 +61,50 @@ Senza regole non viene inoltrato nulla. Ogni regola ha:
 Vale la prima regola che corrisponde. Le impostazioni della versione 1 (app scelte e filtri) vengono
 convertite in regole al primo avvio, se l'app viene aggiornata senza disinstallare.
 
-## Orbita
-
-Il canale **Orbita (JSON)** fa una POST all'indirizzo che inserisci (es. `https://tuo-ddns.it:8080/api/notifiche`).
-Se Orbita risponde con un codice 2xx l'invio è riuscito. Il token, se impostato, viene mandato come
-`Authorization: Bearer <token>`. Meglio usare https.
-
-Con l'interruttore **Mail solo se Orbita non risponde** (attivo di default) la mail parte soltanto
-quando Orbita non è raggiungibile o risponde con un errore. Se Orbita non è raggiungibile ma la mail
-parte, l'errore di Orbita compare in Cronologia come già compensato.
-
-### Conto, metodo e tag per regola
+## Conto, metodo, tag e registrazione automatica
 
 Ogni regola può avere un **conto**, un **metodo di pagamento** e un **tag**, inviati a Orbita insieme
-alle notifiche. Le tendine si riempiono con l'elenco preso da Orbita
-(`GET <indirizzo>/opzioni`, con lo stesso token) e restano salvate per l'uso senza rete; si può
-scrivere anche a mano. Finché non si scarica l'elenco, i metodi propongono quelli standard
-(Contanti, Bonifico, PayPal, Satispay…).
+alle notifiche. Le tendine si riempiono con l'elenco preso da Orbita (stesso indirizzo e stesso token
+della sotto-scheda Orbita) e restano salvate per l'uso senza rete; si può scrivere anche a mano.
+Finché non si scarica l'elenco, i metodi propongono quelli standard (Contanti, Bonifico, PayPal, Satispay…).
 
 Il nome del conto deve coincidere con quello di Orbita (maiuscole escluse); lo stesso vale per il metodo.
 Il tag è uno solo per regola; il simbolo `#` e gli spazi vengono tolti.
 
-### Registrazione automatica
+**Registra la spesa in automatico**
 
-Ogni regola ha l'opzione **Registra la spesa in automatico**:
+Prima Orbita deve riconoscere la notifica come un pagamento o un incasso. Lo fa in due modi:
 
-- **No**: la spesa resta in «Da confermare».
-- **Solo se riconosciuta con le regole fisse**: Orbita registra da sola quando ricava categoria e importo con le sue regole.
-- **Sempre**: registra anche quando Orbita ricorre a Gemini.
+- **Con le regole fisse**: nel testo ci sono un importo con `€` o `EUR` (gli importi preceduti da "saldo",
+  "disponibile", "residuo" ecc. vengono ignorati) e una parola tipo *pagato, addebito, acquisto, carta,
+  ricevuto, accredito, stipendio, rimborso*.
+- **Con Gemini**: solo se le regole fisse non bastano, il testo contiene `€` o `EUR` e in Orbita è
+  configurata la chiave di Gemini. Senza chiave questa strada non esiste.
 
-Orbita registra da sola solo se conosce già la categoria: se il testo non contiene il nome di una categoria
-esistente (parola intera), la proposta resta «Da confermare» con categoria «Generica». In quel caso conto,
-metodo e tag possono comunque arrivare compilati; se risultano vuoti, controlla la regola nell'app e la versione installata.
+Se non la riconosce in nessuno dei due modi, la notifica non genera nessuna proposta in «Da confermare».
 
-### Formato del JSON
+Poi l'opzione della regola decide cosa succede:
 
-```json
-{
-  "source": "notif2mail",
-  "version": 1,
-  "sent_at": 1762341600000,
-  "rule": "WhatsApp",
-  "digest": false,
-  "conto": "Conto principale",
-  "metodo": "Bonifico",
-  "auto": "regole",
-  "tags": ["casa"],
-  "items": [
-    {
-      "ts": 1762341590000,
-      "app": "WhatsApp",
-      "pkg": "com.whatsapp",
-      "title": "Nome contatto",
-      "text": "Pagata bolletta Enel 120 €"
-    }
-  ]
-}
-```
+- **No**: la spesa resta in «Da confermare» e la confermi tu.
+- **Solo se riconosciuta con le regole fisse**: registra da sola solo quando il riconoscimento è avvenuto con le regole fisse.
+- **Sempre**: registra da sola anche quando il riconoscimento è avvenuto con Gemini.
 
-`auto` vale `""`, `"regole"` oppure `"tutto"`. Con il riepilogo attivo `digest` è `true` e `items` contiene
-più notifiche.
+**Quando la registrazione automatica non scatta.** Anche con l'opzione attiva, Orbita registra solo se
+trova una categoria. La cerca in quest'ordine:
+
+1. la categoria già usata in passato per la stessa descrizione;
+2. il nome di una categoria esistente scritto nel testo (parola intera);
+3. la categoria ricordata per quell'app, cioè quella dell'ultima spesa registrata o confermata da quell'app.
+
+Se non ne trova nessuna (o trova solo «Generica»), la spesa resta in «Da confermare». Dopo che ne confermi
+una a mano, per quell'app le successive possono andare in automatico.
+
+Altri casi:
+
+- se il **controllo doppioni** di Orbita è attivo e nella stessa data c'è già una spesa con stessa
+  descrizione e stesso importo, la nuova viene scartata e non registrata;
+- **conto** e **metodo** vengono usati solo se coincidono con quelli che esistono in Orbita
+  (maiuscole escluse); altrimenti restano vuoti, o vale l'ultimo ricordato per quell'app.
 
 ## Notifiche duplicate e messaggi persi
 
@@ -161,7 +163,9 @@ Predefiniti: oggetto `[{app}] {title}`, corpo con app, data, titolo e testo.
 | Sintomo | Cosa controllare |
 |---------|------------------|
 | Non parte niente | Interruttore generale su Stato, accesso alle notifiche concesso, almeno un canale attivo, almeno una regola |
-| La spesa resta in «Da confermare» | Categoria non trovata nel testo; con «Registra in automatico» su No non registra mai |
+| Non trovo dove inserire i dati di Orbita | Canali → sotto-scheda **Orbita** (in alto, la quarta) |
+| La spesa resta in «Da confermare» | Registrazione automatica su No; oppure Orbita non trova la categoria (vedi «Quando la registrazione automatica non scatta»); oppure è un doppione |
+| La notifica non compare nemmeno in «Da confermare» | Orbita non l'ha riconosciuta come pagamento: serve `€`/`EUR` più una parola come *pagato* o *addebito* (o la chiave Gemini in Orbita) |
 | Conto, metodo o tag vuoti in Orbita | Sono scelti e salvati nella regola? Premi **Salva**. |
 | Un messaggio identico al precedente non compare | È arrivato entro 30 secondi dal precedente: è il filtro antiduplicati |
 
