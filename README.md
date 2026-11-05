@@ -73,9 +73,9 @@ e difficile da indovinare, oppure usa un server tuo con token.
 - Se almeno un canale riesce, l'invio è considerato riuscito; gli errori degli altri canali
   compaiono nella Cronologia.
 
-## Conto e tag per regola (Orbita)
+## Conto, metodo e tag per regola (Orbita)
 
-Ogni regola può avere un **conto** e fino a **due tag**, inviati a Orbita insieme alle notifiche.
+Ogni regola può avere un **conto**, un **metodo di pagamento** e un **tag**, inviati a Orbita insieme alle notifiche.
 Le tendine si riempiono con l'elenco preso da Orbita (`GET <indirizzo webhook>/opzioni`, con lo stesso
 token) e restano salvate per l'uso senza rete; si può scrivere anche a mano. Il nome del conto deve
-coincidere con quello di Orbita (maiuscole escluse).
+coincidere con quello di Orbita (maiuscole escluse); lo stesso vale per il metodo (Contanti, Bonifico, PayPal…).

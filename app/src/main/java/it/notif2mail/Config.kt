@@ -127,6 +127,11 @@ class Config(context: Context) {
         get() = str("orbitaConti", "").split('\n').map { it.trim() }.filter { it.isNotEmpty() }
         set(v) = putStr("orbitaConti", v.joinToString("\n"))
 
+    var orbitaMetodi: List<String>
+        get() = str("orbitaMetodi", "").split('\n').map { it.trim() }.filter { it.isNotEmpty() }
+            .ifEmpty { DEFAULT_METODI }
+        set(v) = putStr("orbitaMetodi", v.joinToString("\n"))
+
     var orbitaTag: List<String>
         get() = str("orbitaTag", "").split('\n').map { it.trim() }.filter { it.isNotEmpty() }
         set(v) = putStr("orbitaTag", v.joinToString("\n"))
@@ -184,6 +189,13 @@ class Config(context: Context) {
     }
 
     companion object {
+        /** Metodi di pagamento di Orbita, usati finché non si scarica l'elenco */
+        val DEFAULT_METODI = listOf(
+            "Contanti", "RID/SDD", "Bonifico", "C.Credito 1", "C.Credito 2", "C.Debito",
+            "Contactless", "PayPal", "Bollettino", "Prepagata", "Assegno",
+            "Revolut", "Apple Pay", "Google Pay", "Postepay", "Satispay",
+            "Scalapay", "Amazon Pay", "Altro"
+        )
         const val DEFAULT_SUBJECT = "[{app}] {title}"
         const val DEFAULT_BODY = "App: {app} ({pkg})\nData: {date}\n\n{title}\n{text}"
     }

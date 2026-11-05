@@ -24,15 +24,15 @@ data class Rule(
     val endMin: Int = 20 * 60,
     /** 0 = una mail per notifica; N = un riepilogo ogni N minuti */
     val digestMinutes: Int = 0,
-    /** Per Orbita: conto e fino a due tag da dare alla spesa */
+    /** Per Orbita: conto, metodo di pagamento e un tag da dare alla spesa */
     val conto: String = "",
-    val tag1: String = "",
-    val tag2: String = "",
+    val metodo: String = "",
+    val tag: String = "",
     val enabled: Boolean = true
 ) {
 
     fun tags(): List<String> =
-        listOf(tag1, tag2).map { it.trim().trimStart('#') }.filter { it.isNotEmpty() }
+        listOf(tag.trim().trimStart('#').replace(" ", "")).filter { it.isNotEmpty() }
 
     fun matchesText(haystackLower: String): Boolean {
         val inc = words(include)
@@ -61,6 +61,7 @@ data class Rule(
         if (digestMinutes > 0) parts += "riepilogo ogni $digestMinutes min"
         if (recipients.isNotBlank()) parts += "→ ${recipients.trim()}"
         if (conto.isNotBlank()) parts += "conto: ${conto.trim()}"
+        if (metodo.isNotBlank()) parts += "metodo: ${metodo.trim()}"
         if (tags().isNotEmpty()) parts += tags().joinToString(" ") { "#$it" }
         return if (parts.isEmpty()) "Tutte le notifiche" else parts.joinToString(" · ")
     }
@@ -78,8 +79,8 @@ data class Rule(
         .put("endMin", endMin)
         .put("digestMinutes", digestMinutes)
         .put("conto", conto)
-        .put("tag1", tag1)
-        .put("tag2", tag2)
+        .put("metodo", metodo)
+        .put("tag", tag)
         .put("enabled", enabled)
 
     companion object {
@@ -104,8 +105,8 @@ data class Rule(
             endMin = o.optInt("endMin", 20 * 60),
             digestMinutes = o.optInt("digestMinutes", 0),
             conto = o.optString("conto", ""),
-            tag1 = o.optString("tag1", ""),
-            tag2 = o.optString("tag2", ""),
+            metodo = o.optString("metodo", ""),
+            tag = o.optString("tag", o.optString("tag1", "")),
             enabled = o.optBoolean("enabled", true)
         )
 

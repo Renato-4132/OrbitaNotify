@@ -17,8 +17,9 @@ object Dispatcher {
         val items: List<Db.Pending> = emptyList(),
         val ruleName: String = "",
         val digest: Boolean = false,
-        /** Conto e tag della regola, per Orbita */
+        /** Conto, metodo e tag della regola, per Orbita */
         val conto: String = "",
+        val metodo: String = "",
         val tags: List<String> = emptyList()
     )
 

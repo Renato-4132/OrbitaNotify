@@ -91,9 +91,9 @@ object Ntfy {
 
 /** Manda un JSON a Orbita. Qualunque risposta diversa da 2xx conta come errore. */
 object Webhook {
-    data class Options(val conti: List<String>, val tag: List<String>)
+    data class Options(val conti: List<String>, val tag: List<String>, val metodi: List<String>)
 
-    /** Chiede a Orbita l'elenco dei conti e dei tag, per le tendine della regola. */
+    /** Chiede a Orbita l'elenco di conti, tag e metodi di pagamento, per le tendine della regola. */
     fun fetchOptions(url: String, token: String): Options {
         val headers = if (token.isNotBlank()) mapOf("Authorization" to "Bearer ${token.trim()}") else emptyMap()
         val o = JSONObject(HttpGet.get(url.trim().trimEnd('/') + "/opzioni", headers))
@@ -101,7 +101,7 @@ object Webhook {
             val a = o.optJSONArray(key) ?: return emptyList()
             return (0 until a.length()).map { a.optString(it) }.filter { it.isNotBlank() }
         }
-        return Options(list("conti"), list("tag"))
+        return Options(list("conti"), list("tag"), list("metodi"))
     }
 
     fun send(url: String, token: String, msg: Dispatcher.Message) {
@@ -123,6 +123,7 @@ object Webhook {
             .put("rule", msg.ruleName)
             .put("digest", msg.digest)
             .put("conto", msg.conto)
+            .put("metodo", msg.metodo)
             .put("tags", JSONArray(msg.tags))
             .put("items", items)
         val headers = if (token.isNotBlank()) mapOf("Authorization" to "Bearer ${token.trim()}") else emptyMap()

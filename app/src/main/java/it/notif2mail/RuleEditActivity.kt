@@ -56,8 +56,8 @@ class RuleEditActivity : AppCompatActivity() {
         put(R.id.etRecipients, rule.recipients)
         put(R.id.etDigest, rule.digestMinutes.toString())
         put(R.id.etConto, rule.conto)
-        put(R.id.etTag1, rule.tag1)
-        put(R.id.etTag2, rule.tag2)
+        put(R.id.etMetodo, rule.metodo)
+        put(R.id.etTag, rule.tag)
         refreshOptions()
         chipIds.forEachIndexed { i, chipId ->
             findViewById<Chip>(chipId).isChecked = rule.days and (1 shl i) != 0
@@ -85,16 +85,16 @@ class RuleEditActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.btnDelete).setOnClickListener { confirmDelete() }
     }
 
-    private fun fillDropdowns(conti: List<String>, tag: List<String>) {
+    private fun fillDropdowns(conti: List<String>, tag: List<String>, metodi: List<String>) {
         fun adapter(items: List<String>) = ArrayAdapter(this, android.R.layout.simple_list_item_1, items)
         findViewById<AutoCompleteTextView>(R.id.etConto).setAdapter(adapter(conti))
-        findViewById<AutoCompleteTextView>(R.id.etTag1).setAdapter(adapter(tag))
-        findViewById<AutoCompleteTextView>(R.id.etTag2).setAdapter(adapter(tag))
+        findViewById<AutoCompleteTextView>(R.id.etMetodo).setAdapter(adapter(metodi))
+        findViewById<AutoCompleteTextView>(R.id.etTag).setAdapter(adapter(tag))
     }
 
     /** Mostra gli elenchi già salvati e li aggiorna da Orbita, se risponde. */
     private fun refreshOptions() {
-        fillDropdowns(cfg.orbitaConti, cfg.orbitaTag)
+        fillDropdowns(cfg.orbitaConti, cfg.orbitaTag, cfg.orbitaMetodi)
         if (!cfg.webhookEnabled || cfg.webhookUrl.isBlank()) return
         val url = cfg.webhookUrl
         val token = cfg.webhookToken
@@ -103,7 +103,8 @@ class RuleEditActivity : AppCompatActivity() {
                 val o = Webhook.fetchOptions(url, token)
                 cfg.orbitaConti = o.conti
                 cfg.orbitaTag = o.tag
-                runOnUiThread { if (!isFinishing) fillDropdowns(o.conti, o.tag) }
+                if (o.metodi.isNotEmpty()) cfg.orbitaMetodi = o.metodi
+                runOnUiThread { if (!isFinishing) fillDropdowns(o.conti, o.tag, cfg.orbitaMetodi) }
             } catch (e: Exception) {
                 // Senza rete restano gli elenchi salvati; si può scrivere anche a mano
             }
@@ -171,8 +172,8 @@ class RuleEditActivity : AppCompatActivity() {
             endMin = endMin,
             digestMinutes = digest,
             conto = txt(R.id.etConto).trim(),
-            tag1 = txt(R.id.etTag1).trim().trimStart('#'),
-            tag2 = txt(R.id.etTag2).trim().trimStart('#'),
+            metodo = txt(R.id.etMetodo).trim(),
+            tag = txt(R.id.etTag).trim().trimStart('#'),
             enabled = findViewById<MaterialSwitch>(R.id.swRuleOn).isChecked
         )
 
