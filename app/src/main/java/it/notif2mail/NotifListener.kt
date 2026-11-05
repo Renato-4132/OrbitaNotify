@@ -10,8 +10,14 @@ class NotifListener : NotificationListenerService() {
 
     private val cfg by lazy { Config(this) }
 
-    // Evita di rimandare la stessa notifica quando l'app la aggiorna senza cambiare testo
-    private val lastSeen = LinkedHashMap<String, Int>()
+    // Evita di rimandare la stessa notifica quando Android la ripubblica senza cambiare testo.
+    // Scarta un testo identico solo se arriva entro DEDUP_MS dal precedente: dopo, e' un nuovo evento
+    // (es. due pagamenti uguali dallo stesso esercente).
+    private val lastSeen = LinkedHashMap<String, Pair<Int, Long>>()
+
+    private companion object {
+        const val DEDUP_MS = 30_000L
+    }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         try {
@@ -41,8 +47,10 @@ class NotifListener : NotificationListenerService() {
 
         // Anti-duplicati
         val hash = (title + "\u0000" + text).hashCode()
-        if (lastSeen[sbn.key] == hash) return
-        lastSeen[sbn.key] = hash
+        val now = System.currentTimeMillis()
+        val prev = lastSeen[sbn.key]
+        if (prev != null && prev.first == hash && now - prev.second < DEDUP_MS) return
+        lastSeen[sbn.key] = hash to now
         if (lastSeen.size > 200) lastSeen.remove(lastSeen.keys.first())
 
         Db.get(this).addPending(
