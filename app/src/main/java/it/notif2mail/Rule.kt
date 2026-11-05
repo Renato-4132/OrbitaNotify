@@ -24,8 +24,15 @@ data class Rule(
     val endMin: Int = 20 * 60,
     /** 0 = una mail per notifica; N = un riepilogo ogni N minuti */
     val digestMinutes: Int = 0,
+    /** Per Orbita: conto e fino a due tag da dare alla spesa */
+    val conto: String = "",
+    val tag1: String = "",
+    val tag2: String = "",
     val enabled: Boolean = true
 ) {
+
+    fun tags(): List<String> =
+        listOf(tag1, tag2).map { it.trim().trimStart('#') }.filter { it.isNotEmpty() }
 
     fun matchesText(haystackLower: String): Boolean {
         val inc = words(include)
@@ -53,6 +60,8 @@ data class Rule(
         if (useWindow) parts += "${fmtTime(startMin)}–${fmtTime(endMin)}"
         if (digestMinutes > 0) parts += "riepilogo ogni $digestMinutes min"
         if (recipients.isNotBlank()) parts += "→ ${recipients.trim()}"
+        if (conto.isNotBlank()) parts += "conto: ${conto.trim()}"
+        if (tags().isNotEmpty()) parts += tags().joinToString(" ") { "#$it" }
         return if (parts.isEmpty()) "Tutte le notifiche" else parts.joinToString(" · ")
     }
 
@@ -68,6 +77,9 @@ data class Rule(
         .put("startMin", startMin)
         .put("endMin", endMin)
         .put("digestMinutes", digestMinutes)
+        .put("conto", conto)
+        .put("tag1", tag1)
+        .put("tag2", tag2)
         .put("enabled", enabled)
 
     companion object {
@@ -91,6 +103,9 @@ data class Rule(
             startMin = o.optInt("startMin", 8 * 60),
             endMin = o.optInt("endMin", 20 * 60),
             digestMinutes = o.optInt("digestMinutes", 0),
+            conto = o.optString("conto", ""),
+            tag1 = o.optString("tag1", ""),
+            tag2 = o.optString("tag2", ""),
             enabled = o.optBoolean("enabled", true)
         )
 

@@ -2,6 +2,8 @@
 token
 *.token
 *.pem
+*.keystore
+*.jks
 local.properties
 .env
 # Build e IDE

@@ -55,9 +55,11 @@ class FlushWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params) 
         return Result.success()
     }
 
-    private fun buildMessage(cfg: Config, rule: Rule, group: List<Db.Pending>): Dispatcher.Message =
-        if (rule.digestMinutes > 0) Formatter.digest(cfg, group, rule.appLabel)
+    private fun buildMessage(cfg: Config, rule: Rule, group: List<Db.Pending>): Dispatcher.Message {
+        val base = if (rule.digestMinutes > 0) Formatter.digest(cfg, group, rule.appLabel)
         else Formatter.single(cfg, group[0], rule.appLabel)
+        return base.copy(conto = rule.conto.trim(), tags = rule.tags())
+    }
 
     private fun record(
         db: Db,

@@ -39,6 +39,32 @@ object Http {
     }
 }
 
+object HttpGet {
+    /** GET sincrono: chiamare da un thread in background. Lancia HttpError se il codice non è 2xx. */
+    fun get(
+        url: String,
+        headers: Map<String, String> = emptyMap(),
+        connectTimeoutMs: Int = 8000,
+        readTimeoutMs: Int = 10000
+    ): String {
+        val conn = (URL(url).openConnection() as HttpURLConnection).apply {
+            requestMethod = "GET"
+            connectTimeout = connectTimeoutMs
+            readTimeout = readTimeoutMs
+            headers.forEach { (k, v) -> setRequestProperty(k, v) }
+        }
+        try {
+            val code = conn.responseCode
+            val stream = if (code in 200..299) conn.inputStream else conn.errorStream
+            val text = stream?.bufferedReader()?.use { it.readText() }.orEmpty()
+            if (code !in 200..299) throw HttpError(code, text.take(200))
+            return text
+        } finally {
+            conn.disconnect()
+        }
+    }
+}
+
 object Telegram {
     fun send(token: String, chatId: String, text: String) {
         val body = "chat_id=" + URLEncoder.encode(chatId, "UTF-8") +
@@ -65,6 +91,19 @@ object Ntfy {
 
 /** Manda un JSON a Orbita. Qualunque risposta diversa da 2xx conta come errore. */
 object Webhook {
+    data class Options(val conti: List<String>, val tag: List<String>)
+
+    /** Chiede a Orbita l'elenco dei conti e dei tag, per le tendine della regola. */
+    fun fetchOptions(url: String, token: String): Options {
+        val headers = if (token.isNotBlank()) mapOf("Authorization" to "Bearer ${token.trim()}") else emptyMap()
+        val o = JSONObject(HttpGet.get(url.trim().trimEnd('/') + "/opzioni", headers))
+        fun list(key: String): List<String> {
+            val a = o.optJSONArray(key) ?: return emptyList()
+            return (0 until a.length()).map { a.optString(it) }.filter { it.isNotBlank() }
+        }
+        return Options(list("conti"), list("tag"))
+    }
+
     fun send(url: String, token: String, msg: Dispatcher.Message) {
         val items = JSONArray()
         msg.items.forEach {
@@ -83,6 +122,8 @@ object Webhook {
             .put("sent_at", System.currentTimeMillis())
             .put("rule", msg.ruleName)
             .put("digest", msg.digest)
+            .put("conto", msg.conto)
+            .put("tags", JSONArray(msg.tags))
             .put("items", items)
         val headers = if (token.isNotBlank()) mapOf("Authorization" to "Bearer ${token.trim()}") else emptyMap()
         Http.post(url.trim(), body.toString(), "application/json; charset=utf-8", headers, 8000, 10000)

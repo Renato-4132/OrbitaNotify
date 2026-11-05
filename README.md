@@ -11,7 +11,7 @@ carica il progetto nel repository, apri **Actions**, scarica `OrbitaNotify-debug
 
 ## ATTENZIONE: primo aggiornamento dalla versione 1
 
-La versione 2 è firmata con una chiave fissa (`app/notif2mail.keystore`), diversa da quella
+La versione 2 è firmata con una chiave fissa (custodita nei secrets di GitHub, non nel repository), diversa da quella
 casuale che GitHub aveva usato per la versione 1. Per questo **la prima volta Android rifiuta
 l'aggiornamento**: disinstalla la vecchia app e installa la nuova. Dovrai reinserire le
 impostazioni (server, password). Dagli aggiornamenti successivi in poi si installa sopra
@@ -72,3 +72,10 @@ e difficile da indovinare, oppure usa un server tuo con token.
   parte ogni N minuti circa (Android può ritardare un po' per risparmiare batteria).
 - Se almeno un canale riesce, l'invio è considerato riuscito; gli errori degli altri canali
   compaiono nella Cronologia.
+
+## Conto e tag per regola (Orbita)
+
+Ogni regola può avere un **conto** e fino a **due tag**, inviati a Orbita insieme alle notifiche.
+Le tendine si riempiono con l'elenco preso da Orbita (`GET <indirizzo webhook>/opzioni`, con lo stesso
+token) e restano salvate per l'uso senza rete; si può scrivere anche a mano. Il nome del conto deve
+coincidere con quello di Orbita (maiuscole escluse).

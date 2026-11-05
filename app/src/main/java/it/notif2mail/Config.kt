@@ -122,6 +122,15 @@ class Config(context: Context) {
         get() = bool("mailFallbackOnly", true)
         set(v) = putBool("mailFallbackOnly", v)
 
+    // Elenchi presi da Orbita (conti e tag), tenuti per usarli anche senza rete
+    var orbitaConti: List<String>
+        get() = str("orbitaConti", "").split('\n').map { it.trim() }.filter { it.isNotEmpty() }
+        set(v) = putStr("orbitaConti", v.joinToString("\n"))
+
+    var orbitaTag: List<String>
+        get() = str("orbitaTag", "").split('\n').map { it.trim() }.filter { it.isNotEmpty() }
+        set(v) = putStr("orbitaTag", v.joinToString("\n"))
+
     // --- Messaggio ---
     /** Segnaposto: {app}, {title}, {text}, {pkg}, {date} */
     var subjectTemplate: String

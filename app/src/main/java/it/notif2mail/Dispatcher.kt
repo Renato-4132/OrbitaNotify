@@ -16,7 +16,10 @@ object Dispatcher {
         /** Notifiche originali, per i canali che vogliono dati strutturati (Orbita) */
         val items: List<Db.Pending> = emptyList(),
         val ruleName: String = "",
-        val digest: Boolean = false
+        val digest: Boolean = false,
+        /** Conto e tag della regola, per Orbita */
+        val conto: String = "",
+        val tags: List<String> = emptyList()
     )
 
     data class ChannelResult(

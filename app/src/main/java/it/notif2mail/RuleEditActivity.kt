@@ -4,6 +4,8 @@ import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -53,6 +55,10 @@ class RuleEditActivity : AppCompatActivity() {
         put(R.id.etExclude, rule.exclude)
         put(R.id.etRecipients, rule.recipients)
         put(R.id.etDigest, rule.digestMinutes.toString())
+        put(R.id.etConto, rule.conto)
+        put(R.id.etTag1, rule.tag1)
+        put(R.id.etTag2, rule.tag2)
+        refreshOptions()
         chipIds.forEachIndexed { i, chipId ->
             findViewById<Chip>(chipId).isChecked = rule.days and (1 shl i) != 0
         }
@@ -77,6 +83,31 @@ class RuleEditActivity : AppCompatActivity() {
         }
         findViewById<MaterialButton>(R.id.btnSave).setOnClickListener { save() }
         findViewById<MaterialButton>(R.id.btnDelete).setOnClickListener { confirmDelete() }
+    }
+
+    private fun fillDropdowns(conti: List<String>, tag: List<String>) {
+        fun adapter(items: List<String>) = ArrayAdapter(this, android.R.layout.simple_list_item_1, items)
+        findViewById<AutoCompleteTextView>(R.id.etConto).setAdapter(adapter(conti))
+        findViewById<AutoCompleteTextView>(R.id.etTag1).setAdapter(adapter(tag))
+        findViewById<AutoCompleteTextView>(R.id.etTag2).setAdapter(adapter(tag))
+    }
+
+    /** Mostra gli elenchi già salvati e li aggiorna da Orbita, se risponde. */
+    private fun refreshOptions() {
+        fillDropdowns(cfg.orbitaConti, cfg.orbitaTag)
+        if (!cfg.webhookEnabled || cfg.webhookUrl.isBlank()) return
+        val url = cfg.webhookUrl
+        val token = cfg.webhookToken
+        Thread {
+            try {
+                val o = Webhook.fetchOptions(url, token)
+                cfg.orbitaConti = o.conti
+                cfg.orbitaTag = o.tag
+                runOnUiThread { if (!isFinishing) fillDropdowns(o.conti, o.tag) }
+            } catch (e: Exception) {
+                // Senza rete restano gli elenchi salvati; si può scrivere anche a mano
+            }
+        }.start()
     }
 
     private fun updateWindowRow(enabled: Boolean) {
@@ -139,6 +170,9 @@ class RuleEditActivity : AppCompatActivity() {
             startMin = startMin,
             endMin = endMin,
             digestMinutes = digest,
+            conto = txt(R.id.etConto).trim(),
+            tag1 = txt(R.id.etTag1).trim().trimStart('#'),
+            tag2 = txt(R.id.etTag2).trim().trimStart('#'),
             enabled = findViewById<MaterialSwitch>(R.id.swRuleOn).isChecked
         )
 

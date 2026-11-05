@@ -11,28 +11,31 @@ android {
         applicationId = "it.notif2mail"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "2.0"
+        versionCode = 3
+        versionName = "2.1"
     }
 
-    // Chiave fissa: gli aggiornamenti si installano sopra la versione precedente
-    // (con la chiave casuale di GitHub Actions servirebbe disinstallare ogni volta).
+    // Chiave fissa: gli aggiornamenti si installano sopra la versione precedente.
+    // Keystore e password arrivano dai secrets di GitHub (variabili d'ambiente), mai dal repo.
+    val ksFile = System.getenv("KEYSTORE_FILE")
     signingConfigs {
-        create("fixed") {
-            storeFile = file("notif2mail.keystore")
-            storePassword = "notif2mail"
-            keyAlias = "n2m"
-            keyPassword = "notif2mail"
+        if (ksFile != null) {
+            create("fixed") {
+                storeFile = file(ksFile)
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
         }
     }
 
     buildTypes {
         debug {
-            signingConfig = signingConfigs.getByName("fixed")
+            if (ksFile != null) signingConfig = signingConfigs.getByName("fixed")
         }
         release {
             isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("fixed")
+            if (ksFile != null) signingConfig = signingConfigs.getByName("fixed")
         }
     }
 
