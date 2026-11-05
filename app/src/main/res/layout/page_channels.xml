@@ -264,11 +264,18 @@
                         android:inputType="textUri" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnScanOrbitaUrl"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Scansiona QR indirizzo" />
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:hint="Token segreto (facoltativo)">
+                    android:hint="Token segreto">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etOrbitaToken"
@@ -276,6 +283,13 @@
                         android:layout_height="wrap_content"
                         android:inputType="text" />
                 </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnScanOrbitaToken"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Scansiona QR token" />
 
                 <com.google.android.material.materialswitch.MaterialSwitch
                     android:id="@+id/swMailFallback"

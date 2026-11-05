@@ -35,8 +35,8 @@ Le regole si salvano con **Salva** in fondo alla schermata della regola.
 
 1. Apri la scheda **Canali** e tocca la sotto-scheda **Orbita** (la quarta, in alto).
 2. Attiva **Invia a Orbita**.
-3. In **Indirizzo** scrivi l'indirizzo di Orbita, ad esempio `https://tuo-ddns.it:8080/api/notifiche`.
-4. In **Token segreto** scrivi il token, se in Orbita ne hai impostato uno. Altrimenti lascia vuoto.
+3. In **Indirizzo** scrivi l'indirizzo di Orbita, ad esempio `https://tuo-ddns.it:8080/api/notifiche`, oppure tocca **Scansiona QR indirizzo** e inquadra il QR mostrato in Orbita (Configurazione → Sync).
+4. In **Token segreto** scrivi il token, oppure tocca **Scansiona QR token** e inquadra il QR di Orbita. Il token è obbligatorio: lo trovi in Orbita, Configurazione → Sync → Token Webhook.
 5. Vai su **Stato**, tocca **Invia notifica di prova** e controlla in **Cronologia** che l'esito sia positivo.
 
 Meglio usare `https`.

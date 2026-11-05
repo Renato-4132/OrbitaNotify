@@ -11,8 +11,8 @@ android {
         applicationId = "it.notif2mail"
         minSdk = 26
         targetSdk = 34
-        versionCode = 6
-        versionName = "2.4"
+        versionCode = 7
+        versionName = "2.5"
     }
 
     // Chiave fissa: gli aggiornamenti si installano sopra la versione precedente.
@@ -61,4 +61,5 @@ dependencies {
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
     implementation("com.sun.mail:android-mail:1.6.7")
     implementation("com.sun.mail:android-activation:1.6.7")
+    implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
 }

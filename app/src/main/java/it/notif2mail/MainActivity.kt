@@ -15,6 +15,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
+import android.widget.Toast
+import com.google.mlkit.vision.barcode.common.Barcode
+import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import java.text.DateFormat
 import java.util.Date
 import kotlin.concurrent.thread
@@ -50,6 +54,7 @@ class MainActivity : AppCompatActivity() {
 
         setupStatusPage()
         setupChannelsPage()
+        setupOrbitaScan()
         setupRulesPage()
         setupHistoryPage()
         loadFields()
@@ -175,6 +180,35 @@ class MainActivity : AppCompatActivity() {
         val dd: MaterialAutoCompleteTextView = findViewById(R.id.ddSecurity)
         dd.setAdapter(ArrayAdapter(this, android.R.layout.simple_list_item_1, securityOptions))
     }
+
+    private fun setupOrbitaScan() {
+        findViewById<View>(R.id.btnScanOrbitaUrl).setOnClickListener {
+            scanQr { v ->
+                if (v.startsWith("http://", true) || v.startsWith("https://", true)) {
+                    put(R.id.etOrbitaUrl, v)
+                } else {
+                    toast("Il QR non contiene un indirizzo (https://...)")
+                }
+            }
+        }
+        findViewById<View>(R.id.btnScanOrbitaToken).setOnClickListener {
+            scanQr { v -> put(R.id.etOrbitaToken, v) }
+        }
+    }
+
+    private fun scanQr(onResult: (String) -> Unit) {
+        val options = GmsBarcodeScannerOptions.Builder()
+            .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
+            .build()
+        GmsBarcodeScanning.getClient(this, options).startScan()
+            .addOnSuccessListener { b ->
+                val v = b.rawValue?.trim().orEmpty()
+                if (v.isNotEmpty()) onResult(v) else toast("QR vuoto")
+            }
+            .addOnFailureListener { e -> toast("Scansione non riuscita: ${e.message}") }
+    }
+
+    private fun toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
 
     private fun loadFields() {
         // Mail
