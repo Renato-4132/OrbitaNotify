@@ -124,6 +124,7 @@ object Webhook {
             .put("digest", msg.digest)
             .put("conto", msg.conto)
             .put("metodo", msg.metodo)
+            .put("auto", msg.auto)
             .put("tags", JSONArray(msg.tags))
             .put("items", items)
         val headers = if (token.isNotBlank()) mapOf("Authorization" to "Bearer ${token.trim()}") else emptyMap()

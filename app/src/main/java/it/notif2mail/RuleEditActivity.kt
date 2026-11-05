@@ -26,6 +26,13 @@ class RuleEditActivity : AppCompatActivity() {
     private var startMin = 8 * 60
     private var endMin = 20 * 60
 
+    /** Chiave inviata a Orbita e testo mostrato nella tendina */
+    private val autoOptions = listOf(
+        "" to "No, da confermare a mano",
+        "regole" to "Sì, se riconosciuta con le regole fisse",
+        "tutto" to "Sì, sempre (anche con Gemini)"
+    )
+
     private val chipIds = listOf(
         R.id.chipD0, R.id.chipD1, R.id.chipD2, R.id.chipD3, R.id.chipD4, R.id.chipD5, R.id.chipD6
     )
@@ -57,6 +64,10 @@ class RuleEditActivity : AppCompatActivity() {
         put(R.id.etDigest, rule.digestMinutes.toString())
         put(R.id.etConto, rule.conto)
         put(R.id.etMetodo, rule.metodo)
+        findViewById<AutoCompleteTextView>(R.id.etAuto).apply {
+            setAdapter(ArrayAdapter(this@RuleEditActivity, android.R.layout.simple_list_item_1, autoOptions.map { it.second }))
+            setText(autoOptions.firstOrNull { it.first == rule.auto }?.second ?: autoOptions[0].second, false)
+        }
         put(R.id.etTag, rule.tag)
         refreshOptions()
         chipIds.forEachIndexed { i, chipId ->
@@ -173,6 +184,7 @@ class RuleEditActivity : AppCompatActivity() {
             digestMinutes = digest,
             conto = txt(R.id.etConto).trim(),
             metodo = txt(R.id.etMetodo).trim(),
+            auto = autoOptions.firstOrNull { it.second == txt(R.id.etAuto) }?.first ?: "",
             tag = txt(R.id.etTag).trim().trimStart('#'),
             enabled = findViewById<MaterialSwitch>(R.id.swRuleOn).isChecked
         )

@@ -27,6 +27,8 @@ data class Rule(
     /** Per Orbita: conto, metodo di pagamento e un tag da dare alla spesa */
     val conto: String = "",
     val metodo: String = "",
+    /** Registrazione automatica in Orbita: "" = no, "regole" = solo regole fisse, "tutto" = anche Gemini */
+    val auto: String = "",
     val tag: String = "",
     val enabled: Boolean = true
 ) {
@@ -62,7 +64,11 @@ data class Rule(
         if (recipients.isNotBlank()) parts += "→ ${recipients.trim()}"
         if (conto.isNotBlank()) parts += "conto: ${conto.trim()}"
         if (metodo.isNotBlank()) parts += "metodo: ${metodo.trim()}"
-        if (tags().isNotEmpty()) parts += tags().joinToString(" ") { "#$it" }
+        when (auto) {
+            "regole" -> parts += "registra in automatico (regole)"
+            "tutto" -> parts += "registra in automatico (sempre)"
+        }
+        if (tags().isNotEmpty()) parts += "tag: " + tags().joinToString(" ") { "#$it" }
         return if (parts.isEmpty()) "Tutte le notifiche" else parts.joinToString(" · ")
     }
 
@@ -80,6 +86,7 @@ data class Rule(
         .put("digestMinutes", digestMinutes)
         .put("conto", conto)
         .put("metodo", metodo)
+        .put("auto", auto)
         .put("tag", tag)
         .put("enabled", enabled)
 
@@ -106,6 +113,7 @@ data class Rule(
             digestMinutes = o.optInt("digestMinutes", 0),
             conto = o.optString("conto", ""),
             metodo = o.optString("metodo", ""),
+            auto = o.optString("auto", ""),
             tag = o.optString("tag", o.optString("tag1", "")),
             enabled = o.optBoolean("enabled", true)
         )

@@ -20,6 +20,7 @@ object Dispatcher {
         /** Conto, metodo e tag della regola, per Orbita */
         val conto: String = "",
         val metodo: String = "",
+        val auto: String = "",
         val tags: List<String> = emptyList()
     )
 

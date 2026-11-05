@@ -79,3 +79,9 @@ Ogni regola può avere un **conto**, un **metodo di pagamento** e un **tag**, in
 Le tendine si riempiono con l'elenco preso da Orbita (`GET <indirizzo webhook>/opzioni`, con lo stesso
 token) e restano salvate per l'uso senza rete; si può scrivere anche a mano. Il nome del conto deve
 coincidere con quello di Orbita (maiuscole escluse); lo stesso vale per il metodo (Contanti, Bonifico, PayPal…).
+
+### Registrazione automatica
+
+Ogni regola ha l'opzione **Registra la spesa in automatico**: *No* (la spesa resta in «Da confermare»),
+*solo se riconosciuta con le regole fisse* oppure *sempre* (anche quando Orbita ricorre a Gemini).
+Orbita registra da sola solo se conosce già la categoria; altrimenti la proposta resta da confermare.
